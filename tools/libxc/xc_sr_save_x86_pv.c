@@ -820,6 +820,9 @@ static int write_x86_pv_info(struct xc_sr_context *ctx)
     return write_record(ctx, &rec);
 }
 
+static xen_pfn_t x86_pv_pfn_to_gfn(const struct xc_sr_context *ctx,
+                                   xen_pfn_t pfn);
+
 /*
  * Writes an X86_PV_P2M_FRAMES record into the stream.  This contains the list
  * of pfns making up the p2m table.
@@ -828,7 +831,7 @@ static int write_x86_pv_p2m_frames(struct xc_sr_context *ctx)
 {
     xc_interface *xch = ctx->xch;
     int rc; unsigned i;
-    size_t datasz = ctx->x86_pv.p2m_frames * sizeof(uint64_t);
+    size_t datasz = 2 * ctx->x86_pv.p2m_frames * sizeof(uint64_t); /* pfns, then mfns */
     uint64_t *data = NULL;
     struct xc_sr_rec_x86_pv_p2m_frames hdr =
         {
@@ -854,6 +857,8 @@ static int write_x86_pv_p2m_frames(struct xc_sr_context *ctx)
 
         for ( i = 0; i < ctx->x86_pv.p2m_frames; ++i )
             data[i] = ctx->x86_pv.p2m_pfns[i];
+        for ( ; i < 2 * ctx->x86_pv.p2m_frames; i++ )
+            data[i] = x86_pv_pfn_to_gfn(ctx, ctx->x86_pv.p2m_pfns[i - ctx->x86_pv.p2m_frames]);
     }
     else
         data = (uint64_t *)ctx->x86_pv.p2m_pfns;

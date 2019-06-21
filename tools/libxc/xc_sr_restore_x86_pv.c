@@ -55,6 +55,7 @@ static int expand_p2m(struct xc_sr_context *ctx, unsigned long max_pfn)
     }
     ctx->x86_pv.p2m_frames = end_frame;
     ctx->x86_pv.p2m_pfns = p2m_pfns;
+    ctx->x86_pv.p2m_mfns = realloc(ctx->x86_pv.p2m_mfns, p2m_pfnsz);
 
     ctx->x86_pv.max_pfn = max_pfn;
     for ( i = (old_max ? old_max + 1 : 0); i <= max_pfn; ++i )
@@ -551,7 +552,7 @@ static int update_guest_p2m(struct xc_sr_context *ctx)
             goto err;
         }
 
-        mfn = pfn_to_mfn(ctx, pfn);
+        mfn = pfn_to_mfn(ctx, pfn); /* INSTEAD of lookup, bring the mfns too from the state data and force-"p2m_set_entry()" for p->m binding. */
         if ( !mfn_in_pseudophysmap(ctx, mfn) )
         {
             ERROR("p2m_frame_list[%u] has bad mfn", i);
@@ -689,7 +690,7 @@ static int handle_x86_pv_p2m_frames(struct xc_sr_context *ctx,
     start =  data->start_pfn / fpp;
     end = data->end_pfn / fpp + 1;
 
-    if ( rec->length != sizeof(*data) + ((end - start) * sizeof(uint64_t)) )
+    if ( rec->length != sizeof(*data) + (2 * (end - start) * sizeof(uint64_t)) )
     {
         ERROR("X86_PV_P2M_FRAMES record wrong size: start_pfn %#x"
               ", end_pfn %#x, length %u, expected %zu + (%u - %u) * %zu",
@@ -705,8 +706,10 @@ static int handle_x86_pv_p2m_frames(struct xc_sr_context *ctx,
             return rc;
     }
 
-    for ( x = 0; x < (end - start); ++x )
+    for ( x = 0; x < (end - start); ++x ) {
         ctx->x86_pv.p2m_pfns[start + x] = data->p2m_pfns[x];
+        ctx->x86_pv.p2m_mfns[x] = data->p2m_pfns[x + (end - start)];
+    }
 
     return 0;
 }

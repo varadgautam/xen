@@ -290,6 +290,7 @@ struct xc_sr_context
             void *p2m;
             /* The guest pfns containing the p2m leaves */
             xen_pfn_t *p2m_pfns;
+            xen_pfn_t *p2m_mfns;
 
             /* Read-only mapping of guests shared info page */
             shared_info_any_t *shinfo;
