@@ -846,8 +846,8 @@ static int write_x86_pv_p2m_frames(struct xc_sr_context *ctx)
         };
 
     /* No need to translate if sizeof(uint64_t) == sizeof(xen_pfn_t). */
-    if ( sizeof(uint64_t) != sizeof(*ctx->x86_pv.p2m_pfns) )
-    {
+//    if ( sizeof(uint64_t) != sizeof(*ctx->x86_pv.p2m_pfns) )
+//    {
         if ( !(data = malloc(datasz)) )
         {
             ERROR("Cannot allocate %zu bytes for X86_PV_P2M_FRAMES data",
@@ -859,9 +859,9 @@ static int write_x86_pv_p2m_frames(struct xc_sr_context *ctx)
             data[i] = ctx->x86_pv.p2m_pfns[i];
         for ( ; i < 2 * ctx->x86_pv.p2m_frames; i++ )
             data[i] = x86_pv_pfn_to_gfn(ctx, ctx->x86_pv.p2m_pfns[i - ctx->x86_pv.p2m_frames]);
-    }
-    else
-        data = (uint64_t *)ctx->x86_pv.p2m_pfns;
+//    }
+//    else
+//        data = (uint64_t *)ctx->x86_pv.p2m_pfns;
 
     rc = write_split_record(ctx, &rec, data, datasz);
 
