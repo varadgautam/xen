@@ -207,6 +207,7 @@ struct xc_sr_context
             unsigned long *deferred_pages;
             unsigned long nr_deferred_pages;
             xc_hypercall_buffer_t dirty_bitmap_hbuf;
+            bool stateonly;
         } save;
 
         struct /* Restore data. */

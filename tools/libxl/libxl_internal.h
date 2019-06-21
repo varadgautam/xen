@@ -3316,6 +3316,7 @@ struct libxl__domain_save_state {
     libxl__checkpoint_devices_state cds;
     libxl__stream_write_state sws;
     libxl__logdirty_switch logdirty;
+    int stateonly; /* Don't include guest memory in save image if included. Don't wipe it either. */
 };
 
 

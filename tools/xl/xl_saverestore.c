@@ -120,7 +120,7 @@ void save_domain_core_writeconfig(int fd, const char *source,
 }
 
 static int save_domain(uint32_t domid, const char *filename, int checkpoint,
-                            int leavepaused, const char *override_config_file)
+                            int leavepaused, int stateonly, const char *override_config_file)
 {
     int fd;
     uint8_t *config_data;
@@ -141,7 +141,7 @@ static int save_domain(uint32_t domid, const char *filename, int checkpoint,
 
     save_domain_core_writeconfig(fd, filename, config_data, config_len);
 
-    int rc = libxl_domain_suspend(ctx, domid, fd, 0, NULL);
+    int rc = libxl_domain_suspend(ctx, domid, fd, stateonly ? LIBXL_SAVE_STATE : 0, NULL);
     close(fd);
 
     if (rc < 0) {
@@ -235,14 +235,18 @@ int main_save(int argc, char **argv)
     const char *config_filename = NULL;
     int checkpoint = 0;
     int leavepaused = 0;
+    int stateonly = 0;
     int opt;
 
-    SWITCH_FOREACH_OPT(opt, "cp", NULL, "save", 2) {
+    SWITCH_FOREACH_OPT(opt, "cps", NULL, "save", 2) {
     case 'c':
         checkpoint = 1;
         break;
     case 'p':
         leavepaused = 1;
+        break;
+    case 's':
+        stateonly = 1;
         break;
     }
 
@@ -256,7 +260,7 @@ int main_save(int argc, char **argv)
     if ( argc - optind >= 3 )
         config_filename = argv[optind + 2];
 
-    save_domain(domid, filename, checkpoint, leavepaused, config_filename);
+    save_domain(domid, filename, checkpoint, leavepaused, stateonly, config_filename);
     return EXIT_SUCCESS;
 }
 

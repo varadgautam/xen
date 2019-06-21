@@ -872,9 +872,14 @@ static int save(struct xc_sr_context *ctx, uint16_t guest_type)
             rc = send_domain_memory_live(ctx);
         else if ( ctx->save.checkpointed != XC_MIG_STREAM_NONE )
             rc = send_domain_memory_checkpointed(ctx);
-        else
+        else if ( !ctx->save.stateonly )
             rc = send_domain_memory_nonlive(ctx);
 
+        if ( rc )
+            goto err;
+
+        if ( ctx->save.stateonly )
+            rc = suspend_domain(ctx);
         if ( rc )
             goto err;
 
@@ -981,6 +986,7 @@ int xc_domain_save(xc_interface *xch, int io_fd, uint32_t dom,
     ctx.save.debug = !!(flags & XCFLAGS_DEBUG);
     ctx.save.checkpointed = stream_type;
     ctx.save.recv_fd = recv_fd;
+    ctx.save.stateonly = !!(flags & XCFLAGS_STATE);
 
     /* If altering migration_stream update this assert too. */
     assert(stream_type == XC_MIG_STREAM_NONE ||

@@ -29,6 +29,7 @@
 #define XCFLAGS_HVM       (1 << 2)
 #define XCFLAGS_STDVGA    (1 << 3)
 #define XCFLAGS_CHECKPOINT_COMPRESS    (1 << 4)
+#define XCFLAGS_STATE     (1 << 5) /* Tells xc_save/restore to exclude guestmem from save/restore. */
 
 #define X86_64_B_SIZE   64 
 #define X86_32_B_SIZE   32

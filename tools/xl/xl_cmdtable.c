@@ -152,7 +152,8 @@ struct cmd_spec cmd_table[] = {
       "[options] <Domain> <CheckpointFile> [<ConfigFile>]",
       "-h  Print this help.\n"
       "-c  Leave domain running after creating the snapshot.\n"
-      "-p  Leave domain paused after creating the snapshot."
+      "-p  Leave domain paused after creating the snapshot.\n"
+      "-s  State only."
     },
     { "migrate",
       &main_migrate, 0, 1,

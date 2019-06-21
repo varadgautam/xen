@@ -1491,6 +1491,7 @@ int libxl_domain_suspend(libxl_ctx *ctx, uint32_t domid, int fd,
                          LIBXL_EXTERNAL_CALLERS_ONLY;
 #define LIBXL_SUSPEND_DEBUG 1
 #define LIBXL_SUSPEND_LIVE 2
+#define LIBXL_SAVE_STATE 1 << 2
 
 /*
  * Only suspend domain, do not save its state to file, do not destroy it.

@@ -246,7 +246,8 @@ int main(int argc, char **argv)
     const char *mode = *++argv;
     assert(mode);
 
-    if (!strcmp(mode,"--save-domain")) {
+    if (!strcmp(mode,"--save-domain") || !strcmp(mode,"--save-domain-state")) { /* may not be needed if `flags` is sufficient. */
+        const char *op;
 
         io_fd =                             atoi(NEXTARG);
         recv_fd =                           atoi(NEXTARG);
@@ -259,6 +260,11 @@ int main(int argc, char **argv)
 
         helper_setcallbacks_save(&helper_save_callbacks, cbflags);
 
+        if (!strcmp(mode,"--save-domain-state")) {
+                op = "save-state";
+        } else {
+                op = "save";
+        }
         startup("save");
         setup_signals(save_signal_handler);
 

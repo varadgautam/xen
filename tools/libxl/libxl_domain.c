@@ -510,6 +510,7 @@ int libxl_domain_suspend(libxl_ctx *ctx, uint32_t domid, int fd, int flags,
     dss->live = flags & LIBXL_SUSPEND_LIVE;
     dss->debug = flags & LIBXL_SUSPEND_DEBUG;
     dss->checkpointed_stream = LIBXL_CHECKPOINTED_STREAM_NONE;
+    dss->stateonly = flags & LIBXL_SAVE_STATE;
 
     rc = libxl__fd_flags_modify_save(gc, dss->fd,
                                      ~(O_NONBLOCK|O_NDELAY), 0,

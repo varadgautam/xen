@@ -380,7 +380,8 @@ void libxl__domain_save(libxl__egc *egc, libxl__domain_save_state *dss)
 
     dss->xcflags = (live ? XCFLAGS_LIVE : 0)
           | (debug ? XCFLAGS_DEBUG : 0)
-          | (dss->hvm ? XCFLAGS_HVM : 0);
+          | (dss->hvm ? XCFLAGS_HVM : 0)
+          | (dss->stateonly ? XCFLAGS_STATE : 0);
 
     /* Disallow saving a guest with vNUMA configured because migration
      * stream does not preserve node information.
