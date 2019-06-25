@@ -1920,12 +1920,19 @@ static int relinquish_memory(
     return ret;
 }
 
+static bool domkill_leakguest = false;
+boolean_runtime_param("domkill_leakguest", domkill_leakguest);
+
 int domain_relinquish_resources(struct domain *d)
 {
     int ret;
     struct vcpu *v;
 
     BUG_ON(!cpumask_empty(d->dirty_cpumask));
+
+
+    if ( domkill_leakguest )
+        d->arch.relmem = RELMEM_done;
 
     switch ( d->arch.relmem )
     {
