@@ -395,6 +395,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
     case XEN_DOMCTL_test_assign_device:
         if ( op->domain == DOMID_INVALID )
         {
+    case XEN_DOMCTL_createdomain_from_domaininfo:
     case XEN_DOMCTL_createdomain:
     case XEN_DOMCTL_gdbsx_guestmemio:
             d = NULL;
@@ -493,7 +494,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         else
             domain_resume(d);
         break;
-
+    case XEN_DOMCTL_createdomain_from_domaininfo: /* Same as XEN_DOMCTL_createdomain for now, just force-reuse tables from param. */
     case XEN_DOMCTL_createdomain:
     {
         domid_t        dom;
@@ -532,7 +533,11 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
             rover = dom;
         }
 
-        d = domain_create(dom, &op->u.createdomain);
+        if ( op->cmd == XEN_DOMCTL_createdomain_from_domaininfo )
+            d = domain_create_from_domaininfo(dom, &op->u.createdomain_from_domaininfo);
+        else
+            d = domain_create(dom, &op->u.createdomain);
+
         if ( IS_ERR(d) )
         {
             ret = PTR_ERR(d);

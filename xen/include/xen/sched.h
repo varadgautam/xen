@@ -548,6 +548,9 @@ void domain_update_node_affinity(struct domain *d);
 struct domain *domain_create(domid_t domid,
                              struct xen_domctl_createdomain *config);
 
+struct domain *domain_create_from_domaininfo(domid_t domid,
+                             struct xen_domctl_createdomain_from_domaininfo *config);
+
 /*
  * rcu_lock_domain_by_id() is more efficient than get_domain_by_id().
  * This is the preferred function if the returned domain reference

@@ -260,10 +260,11 @@ static int __init parse_extra_guest_irqs(const char *s)
 }
 custom_param("extra_guest_irqs", parse_extra_guest_irqs);
 
-struct domain *domain_create(domid_t domid,
-                             struct xen_domctl_createdomain *config)
+static struct domain *domain_create_handler(domid_t domid,
+                                            void *config, bool from_domaininfo)
 {
     struct domain *d, **pd, *old_hwdom = NULL;
+
     enum { INIT_xsm = 1u<<0, INIT_watchdog = 1u<<1, INIT_rangeset = 1u<<2,
            INIT_evtchn = 1u<<3, INIT_gnttab = 1u<<4, INIT_arch = 1u<<5 };
     int err, init_status = 0;
@@ -315,7 +316,7 @@ struct domain *domain_create(domid_t domid,
 
     if ( !is_idle_domain(d) )
     {
-        if ( config->flags & XEN_DOMCTL_CDF_hvm_guest )
+        if ( ((struct xen_domctl_createdomain *)config)->flags & XEN_DOMCTL_CDF_hvm_guest )
             d->guest_type = guest_type_hvm;
         else
             d->guest_type = guest_type_pv;
@@ -333,7 +334,7 @@ struct domain *domain_create(domid_t domid,
             hardware_domain = d;
         }
 
-        if ( config->flags & XEN_DOMCTL_CDF_xs_domain )
+        if ( ((struct xen_domctl_createdomain *)config)->flags & XEN_DOMCTL_CDF_xs_domain )
         {
             d->is_xenstore = 1;
             d->disable_migrate = 1;
@@ -344,7 +345,7 @@ struct domain *domain_create(domid_t domid,
         if ( !d->iomem_caps || !d->irq_caps )
             goto fail;
 
-        if ( (err = xsm_domain_create(XSM_HOOK, d, config->ssidref)) != 0 )
+        if ( (err = xsm_domain_create(XSM_HOOK, d, ((struct xen_domctl_createdomain *)config)->ssidref)) != 0 )
             goto fail;
 
         d->controller_pause_count = 1;
@@ -375,8 +376,14 @@ struct domain *domain_create(domid_t domid,
             goto fail;
     }
 
-    if ( (err = arch_domain_create(d, config)) != 0 )
-        goto fail;
+    if ( from_domaininfo ) {
+         if ( (err = arch_domain_create_from_domaininfo(d, config)) != 0 )
+            goto fail;
+    }
+    else {
+        if ( (err = arch_domain_create(d, config)) != 0 )
+            goto fail;
+    }
     init_status |= INIT_arch;
 
     if ( !is_idle_domain(d) )
@@ -403,7 +410,7 @@ struct domain *domain_create(domid_t domid,
         rcu_assign_pointer(domain_hash[DOMAIN_HASH(domid)], d);
         spin_unlock(&domlist_update_lock);
 
-        memcpy(d->handle, config->handle, sizeof(d->handle));
+        memcpy(d->handle, ((struct xen_domctl_createdomain *)config)->handle, sizeof(d->handle));
     }
 
     return d;
@@ -439,6 +446,20 @@ struct domain *domain_create(domid_t domid,
     free_cpumask_var(d->dirty_cpumask);
     free_domain_struct(d);
     return ERR_PTR(err);
+}
+
+
+struct domain *domain_create(domid_t domid,
+                             struct xen_domctl_createdomain *config)
+{
+    return domain_create_handler(domid, config, false);
+}
+
+
+struct domain *domain_create_from_domaininfo(domid_t domid,
+                                     struct xen_domctl_createdomain_from_domaininfo *config)
+{
+    return domain_create_handler(domid, config, true);
 }
 
 
