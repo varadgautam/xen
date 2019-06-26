@@ -121,6 +121,11 @@ struct xen_domctl_getdomaininfo {
 typedef struct xen_domctl_getdomaininfo xen_domctl_getdomaininfo_t;
 DEFINE_XEN_GUEST_HANDLE(xen_domctl_getdomaininfo_t);
 
+struct xen_domctl_createdomain_from_domaininfo {
+    struct xen_domctl_createdomain createdomain;
+    bool pad; /* Use pad == true to use domaininfo. */
+    struct xen_domctl_getdomaininfo domaininfo;
+};
 
 /* XEN_DOMCTL_getpageframeinfo */
 
@@ -1172,6 +1177,7 @@ struct xen_domctl {
 #define XEN_DOMCTL_soft_reset                    79
 #define XEN_DOMCTL_set_gnttab_limits             80
 #define XEN_DOMCTL_vuart_op                      81
+#define XEN_DOMCTL_createdomain_from_domaininfo 100 /* Leaving some gap. */
 #define XEN_DOMCTL_gdbsx_guestmemio            1000
 #define XEN_DOMCTL_gdbsx_pausevcpu             1001
 #define XEN_DOMCTL_gdbsx_unpausevcpu           1002
@@ -1234,6 +1240,7 @@ struct xen_domctl {
         struct xen_domctl_psr_alloc         psr_alloc;
         struct xen_domctl_set_gnttab_limits set_gnttab_limits;
         struct xen_domctl_vuart_op          vuart_op;
+        struct xen_domctl_createdomain_from_domaininfo createdomain_from_domaininfo;
         uint8_t                             pad[128];
     } u;
 };
