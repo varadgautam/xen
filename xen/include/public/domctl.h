@@ -123,8 +123,8 @@ DEFINE_XEN_GUEST_HANDLE(xen_domctl_getdomaininfo_t);
 
 struct xen_domctl_createdomain_from_domaininfo {
     struct xen_domctl_createdomain createdomain;
-    bool pad; /* Use pad == true to use domaininfo. */
-    struct xen_domctl_getdomaininfo domaininfo;
+    uint64_t l3tab_mfn;
+    uint64_t l2tab_mfn;
 };
 
 /* XEN_DOMCTL_getpageframeinfo */
