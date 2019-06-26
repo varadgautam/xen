@@ -500,6 +500,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         domid_t        dom;
         static domid_t rover = 0;
 
+        printk(XENLOG_G_ERR "DOMCTL %d\n", op->cmd);
         ret = -EINVAL;
         if ( (op->u.createdomain.flags &
              ~(XEN_DOMCTL_CDF_hvm_guest
@@ -533,8 +534,10 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
             rover = dom;
         }
 
-        if ( op->cmd == XEN_DOMCTL_createdomain_from_domaininfo )
+        if ( op->cmd == XEN_DOMCTL_createdomain_from_domaininfo ) {
+            printk(XENLOG_G_WARNING "hcall: from domaininfo\n");
             d = domain_create_from_domaininfo(dom, &op->u.createdomain_from_domaininfo);
+        }
         else
             d = domain_create(dom, &op->u.createdomain);
 

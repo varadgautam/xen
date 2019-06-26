@@ -447,6 +447,7 @@ static int arch_domain_create_helper(struct domain *d,
 
     INIT_LIST_HEAD(&d->arch.pdev_list);
 
+    printk("%s: from_domaininfo=%d\n", __func__, from_domaininfo);
     d->arch.relmem = RELMEM_not_started;
     INIT_PAGE_LIST_HEAD(&d->arch.relmem_list);
 

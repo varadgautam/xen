@@ -306,10 +306,12 @@ int pv_domain_initialise_helper(struct domain *d, struct xen_domctl_createdomain
     }
 
     if ( config ) {
+        printk(XENLOG_G_WARNING "%s: reusing l3=%lx l2=%lx\n", __func__, config->l3tab_mfn, config->l2tab_mfn);
         rc = reuse_perdomain_mapping(d, GDT_LDT_VIRT_START, GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
                                      config->l3tab_mfn, config->l2tab_mfn);
     }
     else {
+        printk("%s,NULL\n",__func__);
         rc = create_perdomain_mapping(d, GDT_LDT_VIRT_START,
                                   GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
                                   NULL, NULL);
@@ -360,11 +362,13 @@ int pv_domain_initialise_from_domaininfo(struct domain *d, void *config)
 {
     struct xen_domctl_createdomain_from_domaininfo *cfg = (struct xen_domctl_createdomain_from_domaininfo *) config;
 
+    printk("%s\n",__func__);
     return pv_domain_initialise_helper(d, cfg);
 }
 
 int pv_domain_initialise(struct domain *d)
 {
+    printk("%s\n",__func__);
     return pv_domain_initialise_helper(d, NULL);
 }
 

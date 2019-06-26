@@ -272,6 +272,7 @@ static struct domain *domain_create_handler(domid_t domid,
     if ( (d = alloc_domain_struct()) == NULL )
         return ERR_PTR(-ENOMEM);
 
+    printk("%s: from_domaininfo=%d\n", __func__, from_domaininfo);
     d->domain_id = domid;
 
     /* Debug sanity. */
