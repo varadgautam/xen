@@ -57,6 +57,8 @@ void unmap_vcpu_info(struct vcpu *v);
 
 int arch_domain_create(struct domain *d,
                        struct xen_domctl_createdomain *config);
+int arch_domain_create_from_domaininfo(struct domain *d,
+                       struct xen_domctl_createdomain_from_domaininfo *config);
 
 void arch_domain_destroy(struct domain *d);
 

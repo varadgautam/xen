@@ -438,8 +438,8 @@ static bool emulation_flags_ok(const struct domain *d, uint32_t emflags)
     return true;
 }
 
-int arch_domain_create(struct domain *d,
-                       struct xen_domctl_createdomain *config)
+static int arch_domain_create_helper(struct domain *d,
+                       void *config, bool from_domaininfo)
 {
     bool paging_initialised = false;
     uint32_t emflags;
@@ -490,9 +490,9 @@ int arch_domain_create(struct domain *d,
                d->domain_id);
     }
 
-    d->arch.s3_integrity = config->flags & XEN_DOMCTL_CDF_s3_integrity;
+    d->arch.s3_integrity = ((struct xen_domctl_createdomain *) config)->flags & XEN_DOMCTL_CDF_s3_integrity;
 
-    emflags = config->arch.emulation_flags;
+    emflags = ((struct xen_domctl_createdomain *) config)->arch.emulation_flags;
 
     if ( is_hardware_domain(d) && is_pv_domain(d) )
         emflags |= XEN_X86_EMU_PIT;
@@ -519,9 +519,9 @@ int arch_domain_create(struct domain *d,
     /* Need to determine if HAP is enabled before initialising paging */
     if ( is_hvm_domain(d) )
         d->arch.hvm_domain.hap_enabled =
-            hvm_funcs.hap_supported && (config->flags & XEN_DOMCTL_CDF_hap);
+            hvm_funcs.hap_supported && (((struct xen_domctl_createdomain *) config)->flags & XEN_DOMCTL_CDF_hap);
 
-    if ( (rc = paging_domain_init(d, config->flags)) != 0 )
+    if ( (rc = paging_domain_init(d, ((struct xen_domctl_createdomain *) config)->flags)) != 0 )
         goto fail;
     paging_initialised = true;
 
@@ -564,13 +564,15 @@ int arch_domain_create(struct domain *d,
     {
         mapcache_domain_init(d);
 
-        if ( from_domaininfo )
+        if ( from_domaininfo ) {
             if ( (rc = pv_domain_initialise_from_domaininfo(d,
                     (struct xen_domctl_createdomain_from_domaininfo *) config)) != 0 )
                 goto fail;
-        else
+        }
+        else {
             if ( (rc = pv_domain_initialise(d)) != 0 )
                 goto fail;
+        }
     }
     else
         ASSERT_UNREACHABLE(); /* Not HVM and not PV? */
@@ -602,6 +604,18 @@ int arch_domain_create(struct domain *d,
     free_perdomain_mappings(d);
 
     return rc;
+}
+
+int arch_domain_create(struct domain *d,
+                       struct xen_domctl_createdomain *config)
+{
+    return arch_domain_create_helper(d, config, false);
+}
+
+int arch_domain_create_from_domaininfo(struct domain *d,
+                       struct xen_domctl_createdomain_from_domaininfo *config)
+{
+    return arch_domain_create_helper(d, config, true);
 }
 
 void arch_domain_destroy(struct domain *d)
