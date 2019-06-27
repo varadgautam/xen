@@ -5640,6 +5640,46 @@ void __iomem *ioremap(paddr_t pa, size_t len)
     return (void __force __iomem *)va;
 }
 
+int reuse_perdomain_mapping(struct domain *d, unsigned long va,
+                             unsigned int nr, uint64_t l3tab_mfn, uint64_t l2tab_mfn)
+{
+    struct page_info *pg;
+    l3_pgentry_t *l3tab;
+//    l2_pgentry_t *l2tab;
+//    l1_pgentry_t *l1tab;
+
+//     if ( !d->arch.perdomain_l3_pg )
+//     {
+        pg = mfn_to_page(_mfn(l3tab_mfn));
+        if ( !pg )
+            return -ENOMEM;
+        l3tab = __map_domain_page(pg);
+        d->arch.perdomain_l3_pg = pg;
+        printk("mapped l3@mfn=%lx\n", page_to_mfn(pg));
+        if ( !nr )
+        {
+            unmap_domain_page(l3tab);
+            return 0;
+        }
+//     }
+    if ( !(l3e_get_flags(l3tab[l3_table_offset(va)]) & _PAGE_PRESENT) )
+    {
+        pg = mfn_to_page(l2tab_mfn);
+        if ( !pg )
+        {
+            unmap_domain_page(l3tab);
+            return -ENOMEM;
+        }
+        //l2tab = __map_domain_page(pg);
+        // clear_page(l2tab);
+        l3tab[l3_table_offset(va)] = l3e_from_page(pg, __PAGE_HYPERVISOR_RW);
+        printk("mapped l2@mfn=%lx\n", page_to_mfn(pg));
+    }
+    unmap_domain_page(l3tab);
+    return 0;
+    
+}
+
 int create_perdomain_mapping(struct domain *d, unsigned long va,
                              unsigned int nr, l1_pgentry_t **pl1tab,
                              struct page_info **ppg)

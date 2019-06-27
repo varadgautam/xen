@@ -583,6 +583,8 @@ int compat_subarch_memory_op(int op, XEN_GUEST_HANDLE_PARAM(void));
 #define NIL(type) ((type *)-sizeof(type))
 #define IS_NIL(ptr) (!((uintptr_t)(ptr) + sizeof(*(ptr))))
 
+int reuse_perdomain_mapping(struct domain *d, unsigned long va,
+                             unsigned int nr, uint64_t l3tab_mfn, uint64_t l2tab_mfn);
 int create_perdomain_mapping(struct domain *, unsigned long va,
                              unsigned int nr, l1_pgentry_t **,
                              struct page_info **);
