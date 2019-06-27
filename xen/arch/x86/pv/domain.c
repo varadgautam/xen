@@ -280,8 +280,7 @@ void pv_domain_destroy(struct domain *d)
     d->arch.pv_domain.gdt_ldt_l1tab = NULL;
 }
 
-
-int pv_domain_initialise(struct domain *d)
+int pv_domain_initialise_helper(struct domain *d, struct xen_domctl_createdomain_from_domaininfo *config)
 {
     static const struct arch_csw pv_csw = {
         .from = paravirt_ctxt_switch_from,
@@ -306,9 +305,15 @@ int pv_domain_initialise(struct domain *d)
         *d->arch.pv_domain.cpuidmasks = cpuidmask_defaults;
     }
 
-    rc = create_perdomain_mapping(d, GDT_LDT_VIRT_START,
+    if ( config ) {
+        rc = reuse_perdomain_mapping(d, GDT_LDT_VIRT_START, GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
+                                     config->l3tab_mfn, config->l2tab_mfn);
+    }
+    else {
+        rc = create_perdomain_mapping(d, GDT_LDT_VIRT_START,
                                   GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
                                   NULL, NULL);
+    }
     if ( rc )
         goto fail;
 
@@ -349,6 +354,18 @@ int pv_domain_initialise(struct domain *d)
     pv_domain_destroy(d);
 
     return rc;
+}
+
+int pv_domain_initialise_from_domaininfo(struct domain *d, void *config)
+{
+    struct xen_domctl_createdomain_from_domaininfo *cfg = (struct xen_domctl_createdomain_from_domaininfo *) config;
+
+    return pv_domain_initialise_helper(d, cfg);
+}
+
+int pv_domain_initialise(struct domain *d)
+{
+    return pv_domain_initialise_helper(d, NULL);
 }
 
 static void _toggle_guest_pt(struct vcpu *v)

@@ -564,8 +564,13 @@ int arch_domain_create(struct domain *d,
     {
         mapcache_domain_init(d);
 
-        if ( (rc = pv_domain_initialise(d)) != 0 )
-            goto fail;
+        if ( from_domaininfo )
+            if ( (rc = pv_domain_initialise_from_domaininfo(d,
+                    (struct xen_domctl_createdomain_from_domaininfo *) config)) != 0 )
+                goto fail;
+        else
+            if ( (rc = pv_domain_initialise(d)) != 0 )
+                goto fail;
     }
     else
         ASSERT_UNREACHABLE(); /* Not HVM and not PV? */

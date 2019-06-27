@@ -58,6 +58,7 @@ void pv_vcpu_destroy(struct vcpu *v);
 int pv_vcpu_initialise(struct vcpu *v);
 void pv_domain_destroy(struct domain *d);
 int pv_domain_initialise(struct domain *d);
+int pv_domain_initialise_from_domaininfo(struct domain *d, void *config);
 
 /*
  * Bits which a PV guest can toggle in its view of cr4.  Some are loaded into
