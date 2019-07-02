@@ -67,6 +67,49 @@ int xc_domain_create(xc_interface *xch, uint32_t ssidref,
     return 0;
 }
 
+int xc_domain_create_from_domaininfo(xc_interface *xch, uint32_t ssidref,
+                     xen_domain_handle_t handle, uint32_t flags,
+                     uint32_t *pdomid, xc_domain_configuration_t *config, uint64_t l3tab_mfn, uint64_t l2tab_mfn)
+{
+    xc_domain_configuration_t lconfig;
+    int err;
+    DECLARE_DOMCTL;
+
+    if ( config == NULL )
+    {
+        memset(&lconfig, 0, sizeof(lconfig));
+
+#if defined (__i386) || defined(__x86_64__)
+        if ( flags & XEN_DOMCTL_CDF_hvm_guest )
+            lconfig.emulation_flags = (XEN_X86_EMU_ALL & ~XEN_X86_EMU_VPCI);
+#elif defined (__arm__) || defined(__aarch64__)
+        lconfig.gic_version = XEN_DOMCTL_CONFIG_GIC_NATIVE;
+        lconfig.nr_spis = 0;
+#else
+#error Architecture not supported
+#endif
+
+        config = &lconfig;
+    }
+
+    domctl.cmd = XEN_DOMCTL_createdomain_from_domaininfo;
+    domctl.domain = *pdomid;
+    domctl.u.createdomain_from_domaininfo.createdomain.ssidref = ssidref;
+    domctl.u.createdomain_from_domaininfo.createdomain.flags   = flags;
+    memcpy(domctl.u.createdomain_from_domaininfo.createdomain.handle, handle, sizeof(xen_domain_handle_t));
+    /* xc_domain_configure_t is an alias of arch_domainconfig_t */
+    memcpy(&domctl.u.createdomain_from_domaininfo.createdomain.arch, config, sizeof(*config));
+    domctl.u.createdomain_from_domaininfo.l3tab_mfn = l3tab_mfn;
+    domctl.u.createdomain_from_domaininfo.l2tab_mfn = l2tab_mfn;
+    if ( (err = do_domctl(xch, &domctl)) != 0 )
+        return err;
+
+    *pdomid = (uint16_t)domctl.domain;
+    memcpy(config, &domctl.u.createdomain_from_domaininfo.createdomain.arch, sizeof(*config));
+
+    return 0;
+}
+
 int xc_domain_cacheflush(xc_interface *xch, uint32_t domid,
                          xen_pfn_t start_pfn, xen_pfn_t nr_pfns)
 {
