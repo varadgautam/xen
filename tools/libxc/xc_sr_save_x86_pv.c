@@ -160,6 +160,7 @@ static int map_p2m_tree(struct xc_sr_context *ctx)
         goto err;
     }
 
+    ERROR("fll_mfn=%lx\n", fll_mfn);
     /* Map the guest top p2m. */
     guest_fll = xc_map_foreign_range(xch, ctx->domid, PAGE_SIZE,
                                      PROT_READ, fll_mfn);
