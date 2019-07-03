@@ -542,8 +542,8 @@ static int arch_domain_create_helper(struct domain *d,
      * The shared_info machine address must fit in a 32-bit field within a
      * 32-bit guest's start_info structure. Hence we specify MEMF_bits(32).
      */
-    if ( 0 /* from_domaininfo */ )
-        d->shared_info = mfn_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->shared_info_mfn);
+    if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn )
+        d->shared_info = mfn_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn);
     else if ( (d->shared_info = alloc_xenheap_pages(0, MEMF_bits(32))) != NULL )
         clear_page(d->shared_info);
     else

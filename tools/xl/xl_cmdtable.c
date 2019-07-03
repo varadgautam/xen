@@ -172,14 +172,14 @@ struct cmd_spec cmd_table[] = {
     { "restore",
       &main_restore, 0, 1,
       "Restore a domain from a saved state",
-      "[options] [<ConfigFile>] <CheckpointFile> <l3tab_mfn> <l2tab_mfn>",
+      "[options] [<ConfigFile>] <CheckpointFile> <l3tab_mfn> <l2tab_mfn> <shared_info_mfn>",
       "-h                       Print this help.\n"
       "-p                       Do not unpause domain after restoring it.\n"
       "-e                       Do not wait in the background for the death of the domain.\n"
       "-d                       Enable debug messages.\n"
       "-V, --vncviewer          Connect to the VNC display after the domain is created.\n"
       "-A, --vncviewer-autopass Pass VNC password to viewer via stdin.\n"
-      "-T                       Use <l3tab_mfn> <l2tab_mfn> from cmdline."
+      "-T                       Use <l3tab_mfn> <l2tab_mfn> <shared_info_mfn> from cmdline."
     },
     { "migrate-receive",
       &main_migrate_receive, 0, 1,

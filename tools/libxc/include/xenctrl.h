@@ -501,7 +501,8 @@ int xc_domain_create(xc_interface *xch, uint32_t ssidref,
 
 int xc_domain_create_from_domaininfo(xc_interface *xch, uint32_t ssidref,
                      xen_domain_handle_t handle, uint32_t flags,
-                     uint32_t *pdomid, xc_domain_configuration_t *config, uint64_t l3tab_mfn, uint64_t l2tab_mfn);
+                     uint32_t *pdomid, xc_domain_configuration_t *config, uint64_t l3tab_mfn,
+                     uint64_t l2tab_mfn, uint64_t shared_info_mfn);
 
 /* Functions to produce a dump of a given domain
  *  xc_domain_dumpcore - produces a dump to a specified file

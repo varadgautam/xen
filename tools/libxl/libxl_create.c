@@ -585,7 +585,7 @@ int libxl__domain_make(libxl__gc *gc, libxl_domain_config *d_config,
 
         if ( info->l3_mfn && info->l2_mfn )
             ret = xc_domain_create_from_domaininfo(ctx->xch, info->ssidref, handle, flags, domid,
-                               &xc_config, info->l3_mfn, info->l2_mfn);
+                               &xc_config, info->l3_mfn, info->l2_mfn, info->shared_info_mfn);
         else
             ret = xc_domain_create(ctx->xch, info->ssidref, handle, flags, domid,
                                &xc_config);

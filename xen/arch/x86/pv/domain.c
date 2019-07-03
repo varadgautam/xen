@@ -306,9 +306,9 @@ int pv_domain_initialise_helper(struct domain *d, struct xen_domctl_createdomain
     }
 
     if ( config ) {
-        printk(XENLOG_G_WARNING "%s: reusing l3=%lx l2=%lx\n", __func__, config->l3tab_mfn, config->l2tab_mfn);
+        printk(XENLOG_G_WARNING "%s: reusing l3=%lx l2=%lx\n", __func__, config->mfns.l3tab_mfn, config->mfns.l2tab_mfn);
         rc = reuse_perdomain_mapping(d, GDT_LDT_VIRT_START, GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
-                                     config->l3tab_mfn, config->l2tab_mfn);
+                                     config->mfns.l3tab_mfn, config->mfns.l2tab_mfn);
     }
     else {
         printk("%s,NULL\n",__func__);

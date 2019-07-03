@@ -69,7 +69,8 @@ int xc_domain_create(xc_interface *xch, uint32_t ssidref,
 
 int xc_domain_create_from_domaininfo(xc_interface *xch, uint32_t ssidref,
                      xen_domain_handle_t handle, uint32_t flags,
-                     uint32_t *pdomid, xc_domain_configuration_t *config, uint64_t l3tab_mfn, uint64_t l2tab_mfn)
+                     uint32_t *pdomid, xc_domain_configuration_t *config, uint64_t l3tab_mfn,
+                     uint64_t l2tab_mfn, uint64_t shared_info_mfn)
 {
     xc_domain_configuration_t lconfig;
     int err;
@@ -99,8 +100,9 @@ int xc_domain_create_from_domaininfo(xc_interface *xch, uint32_t ssidref,
     memcpy(domctl.u.createdomain_from_domaininfo.createdomain.handle, handle, sizeof(xen_domain_handle_t));
     /* xc_domain_configure_t is an alias of arch_domainconfig_t */
     memcpy(&domctl.u.createdomain_from_domaininfo.createdomain.arch, config, sizeof(*config));
-    domctl.u.createdomain_from_domaininfo.l3tab_mfn = l3tab_mfn;
-    domctl.u.createdomain_from_domaininfo.l2tab_mfn = l2tab_mfn;
+    domctl.u.createdomain_from_domaininfo.mfns.l3tab_mfn = l3tab_mfn;
+    domctl.u.createdomain_from_domaininfo.mfns.l2tab_mfn = l2tab_mfn;
+    domctl.u.createdomain_from_domaininfo.mfns.shared_info_mfn = shared_info_mfn;
     if ( (err = do_domctl(xch, &domctl)) != 0 )
         return err;
 

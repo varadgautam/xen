@@ -905,6 +905,7 @@ start:
 
         d_config.c_info.l3_mfn = dom_info->l3_mfn;
         d_config.c_info.l2_mfn = dom_info->l2_mfn;
+        d_config.c_info.shared_info_mfn = dom_info->shared_info_mfn;
 
         params.checkpointed_stream = dom_info->checkpointed_stream;
         params.stream_version =

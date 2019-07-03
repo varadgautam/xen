@@ -121,10 +121,15 @@ struct xen_domctl_getdomaininfo {
 typedef struct xen_domctl_getdomaininfo xen_domctl_getdomaininfo_t;
 DEFINE_XEN_GUEST_HANDLE(xen_domctl_getdomaininfo_t);
 
-struct xen_domctl_createdomain_from_domaininfo {
-    struct xen_domctl_createdomain createdomain;
+struct createdomain_magic_mfns {
     uint64_t l3tab_mfn;
     uint64_t l2tab_mfn;
+    uint64_t shared_info_mfn;
+};
+
+struct xen_domctl_createdomain_from_domaininfo {
+    struct xen_domctl_createdomain createdomain;
+    struct createdomain_magic_mfns mfns;
 };
 
 /* XEN_DOMCTL_getpageframeinfo */

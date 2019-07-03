@@ -30,6 +30,7 @@ struct cmd_spec {
     char *cmd_option;
 };
 
+
 struct domain_create {
     int debug;
     int daemonize;
@@ -52,6 +53,7 @@ struct domain_create {
     char **migration_domname_r; /* from malloc */
     unsigned long long l3_mfn;
     unsigned long long l2_mfn;
+    unsigned long long shared_info_mfn;
 };
 
 int create_domain(struct domain_create *dom_info);
