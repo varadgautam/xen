@@ -50,6 +50,8 @@ struct domain_create {
     int migrate_fd; /* -1 means none */
     int send_back_fd; /* -1 means none */
     char **migration_domname_r; /* from malloc */
+    unsigned long long l3_mfn;
+    unsigned long long l2_mfn;
 };
 
 int create_domain(struct domain_create *dom_info);

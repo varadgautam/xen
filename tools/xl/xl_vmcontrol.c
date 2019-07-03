@@ -903,6 +903,9 @@ start:
 
         libxl_domain_restore_params_init(&params);
 
+        d_config.c_info.l3_mfn = dom_info->l3_mfn;
+        d_config.c_info.l2_mfn = dom_info->l2_mfn;
+
         params.checkpointed_stream = dom_info->checkpointed_stream;
         params.stream_version =
             (hdr.mandatory_flags & XL_MANDATORY_FLAG_STREAMv2) ? 2 : 1;

@@ -165,15 +165,16 @@ int main_restore(int argc, char **argv)
     const char *config_file = NULL;
     struct domain_create dom_info;
     int paused = 0, debug = 0, daemonize = 1, monitor = 1,
-        console_autoconnect = 0, vnc = 0, vncautopass = 0;
+        console_autoconnect = 0, vnc = 0, vncautopass = 0, reuse_mfns = 0;
     int opt, rc;
+    unsigned long long l3_mfn = 0, l2_mfn = 0 /*, shinfo_mfn = 0*/;
     static struct option opts[] = {
         {"vncviewer", 0, 0, 'V'},
         {"vncviewer-autopass", 0, 0, 'A'},
         COMMON_LONG_OPTS
     };
 
-    SWITCH_FOREACH_OPT(opt, "FcpdeVA", opts, "restore", 1) {
+    SWITCH_FOREACH_OPT(opt, "FcpdeVAT", opts, "restore", 1) {
     case 'c':
         console_autoconnect = 1;
         break;
@@ -196,6 +197,8 @@ int main_restore(int argc, char **argv)
     case 'A':
         vnc = vncautopass = 1;
         break;
+    case 'T':
+        reuse_mfns = 1;
     }
 
     if (argc-optind == 1) {
@@ -203,6 +206,12 @@ int main_restore(int argc, char **argv)
     } else if (argc-optind == 2) {
         config_file = argv[optind];
         checkpoint_file = argv[optind + 1];
+    } else if (reuse_mfns && argc-optind == 5) {
+        config_file = argv[optind];
+        checkpoint_file = argv[optind + 1];
+        l3_mfn = strtoull(argv[optind + 2], NULL, 0);
+        l2_mfn = strtoull(argv[optind + 3], NULL, 0);
+        //shinfo_mfn = strtoull(argv[optind + 4], NULL, 0);
     } else {
         help("restore");
         return EXIT_FAILURE;
@@ -220,6 +229,8 @@ int main_restore(int argc, char **argv)
     dom_info.vnc = vnc;
     dom_info.vncautopass = vncautopass;
     dom_info.console_autoconnect = console_autoconnect;
+    dom_info.l3_mfn = l3_mfn;
+    dom_info.l2_mfn = l2_mfn;
 
     rc = create_domain(&dom_info);
     if (rc < 0)
