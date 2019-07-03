@@ -5663,7 +5663,7 @@ int reuse_perdomain_mapping(struct domain *d, unsigned long va,
             return 0;
         }
 //     }
-    if ( !(l3e_get_flags(l3tab[l3_table_offset(va)]) & _PAGE_PRESENT) )
+/*    if ( !(l3e_get_flags(l3tab[l3_table_offset(va)]) & _PAGE_PRESENT) )
     {
         pg = mfn_to_page(l2tab_mfn);
         if ( !pg )
@@ -5676,6 +5676,7 @@ int reuse_perdomain_mapping(struct domain *d, unsigned long va,
         l3tab[l3_table_offset(va)] = l3e_from_page(pg, __PAGE_HYPERVISOR_RW);
         printk("mapped l2@mfn=%lx\n", page_to_mfn(pg));
     }
+*/
     unmap_domain_page(l3tab);
     return 0;
     
