@@ -542,10 +542,15 @@ static int arch_domain_create_helper(struct domain *d,
      * The shared_info machine address must fit in a 32-bit field within a
      * 32-bit guest's start_info structure. Hence we specify MEMF_bits(32).
      */
-    if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn )
+    if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn ) {
         d->shared_info = mfn_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn);
-    else if ( (d->shared_info = alloc_xenheap_pages(0, MEMF_bits(32))) != NULL )
+        printk(XENLOG_G_ERR "Consuming sharedinfo; fll=%lu cr3=%lu\n", d->shared_info.arch.pfn_to_mfn_frame_list_list, d->shared_info.arch.p2m_cr3);
+        alloc_xenheap_pages(0, MEMF_bits(32)); /* Waste an allocation to advance a pointer. */
+    }
+    else if ( (d->shared_info = alloc_xenheap_pages(0, MEMF_bits(32))) != NULL ) {
+        printk(XENLOG_G_ERR "createdomain: shared_info = %lu\n", virt_to_mfn(d->shared_info));
         clear_page(d->shared_info);
+    }
     else
         goto fail;
 

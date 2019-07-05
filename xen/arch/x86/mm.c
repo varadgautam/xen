@@ -5678,6 +5678,10 @@ int reuse_perdomain_mapping(struct domain *d, unsigned long va,
     }
 */
     unmap_domain_page(l3tab);
+    /* waste three allocations to adv pointer. */
+    alloc_domheap_page(d, MEMF_no_owner);
+    alloc_domheap_page(d, MEMF_no_owner);
+    alloc_domheap_page(d, MEMF_no_owner);
     return 0;
     
 }
