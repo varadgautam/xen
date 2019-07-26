@@ -544,11 +544,11 @@ static int arch_domain_create_helper(struct domain *d,
      */
     if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn ) {
         d->shared_info = mfn_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn);
-        printk(XENLOG_G_ERR "Consuming sharedinfo; fll=%lu cr3=%lu\n", d->shared_info.arch.pfn_to_mfn_frame_list_list, d->shared_info.arch.p2m_cr3);
+        printk(XENLOG_G_ERR "Consuming sharedinfo; fll= %lu cr3= %lu\n", d->shared_info->native.arch.pfn_to_mfn_frame_list_list, d->shared_info->native.arch.p2m_cr3);
         alloc_xenheap_pages(0, MEMF_bits(32)); /* Waste an allocation to advance a pointer. */
     }
     else if ( (d->shared_info = alloc_xenheap_pages(0, MEMF_bits(32))) != NULL ) {
-        printk(XENLOG_G_ERR "createdomain: shared_info = %lu\n", virt_to_mfn(d->shared_info));
+        printk(XENLOG_G_ERR "createdomain: shared_info= %lu\n", virt_to_mfn(d->shared_info));
         clear_page(d->shared_info);
     }
     else

@@ -5656,7 +5656,7 @@ int reuse_perdomain_mapping(struct domain *d, unsigned long va,
             return -ENOMEM;
         l3tab = __map_domain_page(pg);
         d->arch.perdomain_l3_pg = pg;
-        printk("%s: mapped l3@mfn=%lx\n", __func__, mfn_x(page_to_mfn(pg)));
+        printk("%s: mapped l3@mfn= %lu\n", __func__, mfn_x(page_to_mfn(pg)));
         if ( !nr )
         {
             unmap_domain_page(l3tab);
@@ -5708,7 +5708,7 @@ int create_perdomain_mapping(struct domain *d, unsigned long va,
         l3tab = __map_domain_page(pg);
         clear_page(l3tab);
         d->arch.perdomain_l3_pg = pg;
-        printk("l3@mfn=%lx\n", mfn_x(page_to_mfn(pg)));
+        printk("l3@mfn= %lu\n", mfn_x(page_to_mfn(pg)));
         if ( !nr )
         {
             unmap_domain_page(l3tab);
@@ -5733,7 +5733,7 @@ int create_perdomain_mapping(struct domain *d, unsigned long va,
         l2tab = __map_domain_page(pg);
         clear_page(l2tab);
         l3tab[l3_table_offset(va)] = l3e_from_page(pg, __PAGE_HYPERVISOR_RW);
-        printk("l2@mfn=%lx\n", mfn_x(page_to_mfn(pg)));
+        printk("l2@mfn= %lu\n", mfn_x(page_to_mfn(pg)));
     }
     else
         l2tab = map_l2t_from_l3e(l3tab[l3_table_offset(va)]);
@@ -5763,7 +5763,7 @@ int create_perdomain_mapping(struct domain *d, unsigned long va,
                 ASSERT(!pl1tab[l2_table_offset(va)]);
                 pl1tab[l2_table_offset(va)] = l1tab;
                 pg = virt_to_page(l1tab);
-                printk("l1@mfn=%lx : A\n", mfn_x(page_to_mfn(pg)));
+                printk("l1@mfn= %lu : A\n", mfn_x(page_to_mfn(pg)));
             }
             else
             {
@@ -5774,7 +5774,7 @@ int create_perdomain_mapping(struct domain *d, unsigned long va,
                     break;
                 }
                 l1tab = __map_domain_page(pg);
-                printk("l1@mfn=%lx : B\n", mfn_x(page_to_mfn(pg)));
+                printk("l1@mfn= %lu : B\n", mfn_x(page_to_mfn(pg)));
             }
             clear_page(l1tab);
             *pl2e = l2e_from_page(pg, __PAGE_HYPERVISOR_RW);
@@ -5794,7 +5794,7 @@ int create_perdomain_mapping(struct domain *d, unsigned long va,
                 l1tab[l1_table_offset(va)] =
                     l1e_from_page(pg, __PAGE_HYPERVISOR_RW | _PAGE_AVAIL0);
                 l2e_add_flags(*pl2e, _PAGE_AVAIL0);
-                printk("l1@mfn=%lx : C\n", mfn_x(page_to_mfn(pg)));
+                printk("l1@mfn= %lu : C\n", mfn_x(page_to_mfn(pg)));
             }
             else
                 rc = -ENOMEM;
