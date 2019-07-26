@@ -259,6 +259,8 @@ struct xc_sr_context
 
             /* Sender has invoked verify mode on the stream. */
             bool verify;
+
+            bool stateonly;
         } restore;
     };
 

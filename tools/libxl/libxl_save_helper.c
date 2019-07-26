@@ -299,7 +299,8 @@ int main(int argc, char **argv)
                               store_domid, console_evtchn, &console_mfn,
                               console_domid, hvm, pae,
                               stream_type,
-                              &helper_restore_callbacks, send_back_fd);
+                              &helper_restore_callbacks, send_back_fd,
+                              true /* stateonly TODO get this from outside. */);
         helper_stub_restore_results(store_mfn,console_mfn,0);
         complete(r);
 

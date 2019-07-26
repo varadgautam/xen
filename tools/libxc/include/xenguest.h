@@ -192,6 +192,7 @@ struct restore_callbacks {
  * @parm stream_type non-zero if the far end of the stream is using checkpointing
  * @parm callbacks non-NULL to receive a callback to restore toolstack
  *       specific data
+ * @parm stateonly Do not attempt to restore memory.
  * @return 0 on success, -1 on failure
  */
 int xc_domain_restore(xc_interface *xch, int io_fd, uint32_t dom,
@@ -200,7 +201,8 @@ int xc_domain_restore(xc_interface *xch, int io_fd, uint32_t dom,
                       unsigned long *console_mfn, uint32_t console_domid,
                       unsigned int hvm, unsigned int pae,
                       xc_migration_stream_t stream_type,
-                      struct restore_callbacks *callbacks, int send_back_fd);
+                      struct restore_callbacks *callbacks, int send_back_fd,
+                      bool stateonly);
 
 /**
  * This function will create a domain for a paravirtualized Linux
