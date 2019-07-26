@@ -141,6 +141,7 @@ static int process_start_info(struct xc_sr_context *ctx,
 
     pfn = GET_FIELD(vcpu, user_regs.edx, ctx->x86_pv.width);
 
+if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("Start Info pfn %#lx out of range", pfn);
@@ -153,8 +154,10 @@ static int process_start_info(struct xc_sr_context *ctx,
                XEN_DOMCTL_PFINFO_LTAB_SHIFT));
         goto err;
     }
+}
 
-    mfn = pfn_to_mfn(ctx, pfn);
+    mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
+if ( !ctx->restore.stateonly ) {
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("Start Info has bad mfn");
@@ -163,6 +166,7 @@ static int process_start_info(struct xc_sr_context *ctx,
     }
 
     SET_FIELD(vcpu, user_regs.edx, mfn, ctx->x86_pv.width);
+}
     guest_start_info = xc_map_foreign_range(
         xch, ctx->domid, PAGE_SIZE, PROT_READ | PROT_WRITE, mfn);
     if ( !guest_start_info )
@@ -173,19 +177,23 @@ static int process_start_info(struct xc_sr_context *ctx,
 
     /* Deal with xenstore stuff */
     pfn = GET_FIELD(guest_start_info, store_mfn, ctx->x86_pv.width);
+if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("XenStore pfn %#lx out of range", pfn);
         goto err;
     }
+}
 
-    mfn = pfn_to_mfn(ctx, pfn);
+    mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
+if ( !ctx->restore.stateonly ) {
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("XenStore pfn has bad mfn");
         dump_bad_pseudophysmap_entry(ctx, mfn);
         goto err;
     }
+}
 
     ctx->restore.xenstore_gfn = mfn;
     SET_FIELD(guest_start_info, store_mfn, mfn, ctx->x86_pv.width);
@@ -194,19 +202,22 @@ static int process_start_info(struct xc_sr_context *ctx,
 
     /* Deal with console stuff */
     pfn = GET_FIELD(guest_start_info, console.domU.mfn, ctx->x86_pv.width);
+if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("Console pfn %#lx out of range", pfn);
         goto err;
     }
-
-    mfn = pfn_to_mfn(ctx, pfn);
+}
+    mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
+if ( !ctx->restore.stateonly ) {
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("Console pfn has bad mfn");
         dump_bad_pseudophysmap_entry(ctx, mfn);
         goto err;
     }
+}
 
     ctx->restore.console_gfn = mfn;
     SET_FIELD(guest_start_info, console.domU.mfn, mfn, ctx->x86_pv.width);
@@ -244,6 +255,7 @@ static int process_vcpu_basic(struct xc_sr_context *ctx,
     memcpy(&vcpu, ctx->x86_pv.restore.vcpus[vcpuid].basic,
            ctx->x86_pv.restore.vcpus[vcpuid].basicsz);
 
+if ( !ctx->restore.stateonly ) {
     /* Vcpu 0 is special: Convert the suspend record to an mfn. */
     if ( vcpuid == 0 )
     {
@@ -357,13 +369,15 @@ static int process_vcpu_basic(struct xc_sr_context *ctx,
 
         vcpu.x64.ctrlreg[1] = (uint64_t)mfn << PAGE_SHIFT;
     }
+}
 
     if ( xc_vcpu_setcontext(xch, ctx->domid, vcpuid, &vcpu) )
     {
         PERROR("Failed to set vcpu%u's basic info", vcpuid);
         goto err;
     }
-
+    //ctx->restore.console_gfn = XXX;
+    //ctx->restore.xenstore_gfn = XXX;
     rc = 0;
 
  err:
@@ -1116,11 +1130,11 @@ static int x86_pv_stream_complete(struct xc_sr_context *ctx)
     rc = pin_pagetables(ctx);
     if ( rc )
         return rc;
-
+if ( !ctx->restore.stateonly ) {
     rc = update_guest_p2m(ctx);
     if ( rc )
         return rc;
-
+}
     rc = xc_dom_gnttab_seed(xch, ctx->domid,
                             ctx->restore.console_gfn,
                             ctx->restore.xenstore_gfn,
