@@ -30,6 +30,13 @@ struct cmd_spec {
     char *cmd_option;
 };
 
+struct restore_magic_mfns {
+    unsigned long long l3_mfn;
+    unsigned long long shared_info_mfn;
+    unsigned long long hostp2m_maddr;
+    unsigned long long store_mfn;
+    unsigned long long console_mfn;
+};
 
 struct domain_create {
     int debug;
@@ -51,9 +58,8 @@ struct domain_create {
     int migrate_fd; /* -1 means none */
     int send_back_fd; /* -1 means none */
     char **migration_domname_r; /* from malloc */
-    unsigned long long l3_mfn;
-    unsigned long long l2_mfn;
-    unsigned long long shared_info_mfn;
+    unsigned long long reuse_domid;
+    struct restore_magic_mfns mfns;
 };
 
 int create_domain(struct domain_create *dom_info);

@@ -628,6 +628,11 @@ void paging_log_dirty_init(struct domain *d, const struct log_dirty_ops *ops)
     d->arch.paging.log_dirty.ops = ops;
 }
 
+int paging_domain_reuse(struct domain *d, uint64_t hostp2m_maddr)
+{
+    return p2m_reuse(d, hostp2m_maddr);
+}
+
 /************************************************/
 /*           CODE FOR PAGING SUPPORT            */
 /************************************************/

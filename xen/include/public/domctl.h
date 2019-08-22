@@ -123,8 +123,10 @@ DEFINE_XEN_GUEST_HANDLE(xen_domctl_getdomaininfo_t);
 
 struct createdomain_magic_mfns {
     uint64_t l3tab_mfn;
-    uint64_t l2tab_mfn;
+    uint64_t hostp2m_maddr;
     uint64_t shared_info_mfn;
+    uint64_t nested_p2m_base_mfns[1];
+    uint64_t altp2m_p2m_base_mfns[1];
 };
 
 struct xen_domctl_createdomain_from_domaininfo {

@@ -167,7 +167,7 @@ int main_restore(int argc, char **argv)
     int paused = 0, debug = 0, daemonize = 1, monitor = 1,
         console_autoconnect = 0, vnc = 0, vncautopass = 0, reuse_mfns = 0;
     int opt, rc;
-    unsigned long long l3_mfn = 0, l2_mfn = 0, shared_info_mfn = 0;
+    unsigned long long l3_mfn = 0, shared_info_mfn = 0, hostp2m_maddr = 0, reuse_domid = 0, console_mfn = 0, store_mfn = 0;
     static struct option opts[] = {
         {"vncviewer", 0, 0, 'V'},
         {"vncviewer-autopass", 0, 0, 'A'},
@@ -209,8 +209,11 @@ int main_restore(int argc, char **argv)
     } else if (reuse_mfns && argc-optind == 4) {
         checkpoint_file = argv[optind];
         l3_mfn = strtoull(argv[optind + 1], NULL, 0);
-        l2_mfn = strtoull(argv[optind + 2], NULL, 0);
+        hostp2m_maddr = strtoull(argv[optind + 2], NULL, 0);
         shared_info_mfn = strtoull(argv[optind + 3], NULL, 0);
+//         reuse_domid = strtoull(argv[optind + 4], NULL, 0);
+//         console_mfn = strtoull(argv[optind + 5], NULL, 0);
+//         store_mfn = strtoull(argv[optind + 6], NULL, 0);
     } else {
         help("restore");
         return EXIT_FAILURE;
@@ -228,9 +231,12 @@ int main_restore(int argc, char **argv)
     dom_info.vnc = vnc;
     dom_info.vncautopass = vncautopass;
     dom_info.console_autoconnect = console_autoconnect;
-    dom_info.l3_mfn = l3_mfn;
-    dom_info.l2_mfn = l2_mfn;
-    dom_info.shared_info_mfn = shared_info_mfn;
+    dom_info.mfns.l3_mfn = l3_mfn;
+    dom_info.mfns.shared_info_mfn = shared_info_mfn;
+    dom_info.mfns.hostp2m_maddr = hostp2m_maddr;
+    dom_info.mfns.store_mfn = store_mfn;
+    dom_info.mfns.console_mfn = console_mfn;
+    dom_info.reuse_domid = reuse_domid;
 
     rc = create_domain(&dom_info);
     if (rc < 0)

@@ -522,7 +522,9 @@ static int arch_domain_create_helper(struct domain *d,
         d->arch.hvm_domain.hap_enabled =
             hvm_funcs.hap_supported && (((struct xen_domctl_createdomain *) config)->flags & XEN_DOMCTL_CDF_hap);
 
-    if ( (rc = paging_domain_init(d, ((struct xen_domctl_createdomain *) config)->flags)) != 0 )
+    if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.hostp2m_maddr ) {
+        paging_domain_reuse(d, ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.hostp2m_maddr);
+    } else if ( (rc = paging_domain_init(d, ((struct xen_domctl_createdomain *) config)->flags)) != 0 )
         goto fail;
     paging_initialised = true;
 

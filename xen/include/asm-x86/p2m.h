@@ -556,6 +556,8 @@ static inline void put_two_gfns(struct two_gfns *arg)
     put_gfn(arg->first_domain, arg->first_gfn);
 }
 
+int p2m_reuse(struct domain *d, uint64_t hostp2m_base_mfn);
+
 /* Init the datastructures for later use by the p2m code */
 int p2m_init(struct domain *d);
 

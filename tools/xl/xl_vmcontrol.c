@@ -903,9 +903,10 @@ start:
 
         libxl_domain_restore_params_init(&params);
 
-        d_config.c_info.l3_mfn = dom_info->l3_mfn;
-        d_config.c_info.l2_mfn = dom_info->l2_mfn;
-        d_config.c_info.shared_info_mfn = dom_info->shared_info_mfn;
+        d_config.c_info.mfns.l3_mfn = dom_info->mfns.l3_mfn;
+        d_config.c_info.mfns.hostp2m_maddr = dom_info->mfns.hostp2m_maddr;
+        d_config.c_info.mfns.shared_info_mfn = dom_info->mfns.shared_info_mfn;
+//      d_config.c_info.reuse_domid = dom_info->reuse_domid;
 
         params.checkpointed_stream = dom_info->checkpointed_stream;
         params.stream_version =

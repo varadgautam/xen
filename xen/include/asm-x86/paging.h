@@ -191,6 +191,8 @@ struct sh_dirty_vram {
  * vcpu_initialise() in domain.c */
 void paging_vcpu_init(struct vcpu *v);
 
+int paging_domain_reuse(struct domain *d, uint64_t hostp2m_base_mfn);
+
 /* Set up the paging-assistance-specific parts of a domain struct at
  * start of day.  Called for every domain from arch_domain_create() */
 int paging_domain_init(struct domain *d, unsigned int domcr_flags);

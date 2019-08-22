@@ -122,6 +122,7 @@ static int p2m_init_hostp2m(struct domain *d)
         if ( p2m->logdirty_ranges )
         {
             d->arch.p2m = p2m;
+            printk("hostp2m mfn= %ld\n", virt_to_mfn(p2m));
             return 0;
         }
         p2m_free_one(p2m);
@@ -215,6 +216,32 @@ static int p2m_init_altp2m(struct domain *d)
     }
 
     return 0;
+}
+
+int p2m_reuse(struct domain *d, uint64_t hostp2m_base_mfn)
+{
+    int rc;
+
+    d->arch.p2m = mfn_to_virt(hostp2m_base_mfn);
+
+    /* Must initialise nestedp2m unconditionally
+     * since nestedhvm_enabled(d) returns false here.
+     * (p2m_init runs too early for HVM_PARAM_* options) */
+    rc = p2m_init_nestedp2m(d);
+    if ( rc )
+    {
+        p2m_teardown_hostp2m(d);
+        return rc;
+    }
+
+    rc = p2m_init_altp2m(d);
+    if ( rc )
+    {
+        p2m_teardown_hostp2m(d);
+        p2m_teardown_nestedp2m(d);
+    }
+
+    return rc;
 }
 
 int p2m_init(struct domain *d)

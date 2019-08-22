@@ -378,6 +378,12 @@ libxl_version_info = Struct("version_info", [
     ("build_id",          string),
     ], dir=DIR_OUT)
 
+libxl_dom_create_info_magic_mfns = Struct("dom_create_info_magic_mfns",[
+    ("l3_mfn", uint64),
+    ("shared_info_mfn", uint64),
+    ("hostp2m_maddr", uint64),
+], dir=DIR_IN)
+
 libxl_domain_create_info = Struct("domain_create_info",[
     ("type",         libxl_domain_type),
     ("hap",          libxl_defbool),
@@ -392,9 +398,7 @@ libxl_domain_create_info = Struct("domain_create_info",[
     ("pool_name",    string),
     ("run_hotplug_scripts",libxl_defbool),
     ("driver_domain",libxl_defbool),
-    ("l3_mfn",       uint64),
-    ("l2_mfn",       uint64),
-    ("shared_info_mfn",       uint64),
+    ("mfns", libxl_dom_create_info_magic_mfns),
     ], dir=DIR_IN)
 
 libxl_domain_restore_params = Struct("domain_restore_params", [
