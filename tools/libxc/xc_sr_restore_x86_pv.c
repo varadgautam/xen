@@ -141,7 +141,6 @@ static int process_start_info(struct xc_sr_context *ctx,
 
     pfn = GET_FIELD(vcpu, user_regs.edx, ctx->x86_pv.width);
 
-if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("Start Info pfn %#lx out of range", pfn);
@@ -154,10 +153,9 @@ if ( !ctx->restore.stateonly ) {
                XEN_DOMCTL_PFINFO_LTAB_SHIFT));
         goto err;
     }
-}
 
     mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
-if ( !ctx->restore.stateonly ) {
+
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("Start Info has bad mfn");
@@ -166,7 +164,7 @@ if ( !ctx->restore.stateonly ) {
     }
 
     SET_FIELD(vcpu, user_regs.edx, mfn, ctx->x86_pv.width);
-}
+
     guest_start_info = xc_map_foreign_range(
         xch, ctx->domid, PAGE_SIZE, PROT_READ | PROT_WRITE, mfn);
     if ( !guest_start_info )
@@ -177,23 +175,19 @@ if ( !ctx->restore.stateonly ) {
 
     /* Deal with xenstore stuff */
     pfn = GET_FIELD(guest_start_info, store_mfn, ctx->x86_pv.width);
-if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("XenStore pfn %#lx out of range", pfn);
         goto err;
     }
-}
 
     mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
-if ( !ctx->restore.stateonly ) {
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("XenStore pfn has bad mfn");
         dump_bad_pseudophysmap_entry(ctx, mfn);
         goto err;
     }
-}
 
     ctx->restore.xenstore_gfn = mfn;
     SET_FIELD(guest_start_info, store_mfn, mfn, ctx->x86_pv.width);
@@ -202,22 +196,19 @@ if ( !ctx->restore.stateonly ) {
 
     /* Deal with console stuff */
     pfn = GET_FIELD(guest_start_info, console.domU.mfn, ctx->x86_pv.width);
-if ( !ctx->restore.stateonly ) {
     if ( pfn > ctx->x86_pv.max_pfn )
     {
         ERROR("Console pfn %#lx out of range", pfn);
         goto err;
     }
-}
+
     mfn = ctx->restore.stateonly ? pfn : pfn_to_mfn(ctx, pfn);
-if ( !ctx->restore.stateonly ) {
     if ( !mfn_in_pseudophysmap(ctx, mfn) )
     {
         ERROR("Console pfn has bad mfn");
         dump_bad_pseudophysmap_entry(ctx, mfn);
         goto err;
     }
-}
 
     ctx->restore.console_gfn = mfn;
     SET_FIELD(guest_start_info, console.domU.mfn, mfn, ctx->x86_pv.width);
@@ -1127,14 +1118,16 @@ static int x86_pv_stream_complete(struct xc_sr_context *ctx)
     if ( rc )
         return rc;
 
+if ( !ctx->restore.stateonly ) {
     rc = pin_pagetables(ctx);
     if ( rc )
         return rc;
-if ( !ctx->restore.stateonly ) {
+
     rc = update_guest_p2m(ctx);
     if ( rc )
         return rc;
 }
+
     rc = xc_dom_gnttab_seed(xch, ctx->domid,
                             ctx->restore.console_gfn,
                             ctx->restore.xenstore_gfn,

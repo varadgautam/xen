@@ -504,6 +504,7 @@ static int write_one_vcpu_basic(struct xc_sr_context *ctx, uint32_t id)
         goto err;
     }
 
+if ( !ctx->save.stateonly ) {
     /* Vcpu0 is special: Convert the suspend record to a pfn. */
     if ( id == 0 )
     {
@@ -570,6 +571,7 @@ static int write_one_vcpu_basic(struct xc_sr_context *ctx, uint32_t id)
         pfn = mfn_to_pfn(ctx, mfn);
         vcpu.x64.ctrlreg[1] = 1 | ((uint64_t)pfn << PAGE_SHIFT);
     }
+}
 
     if ( ctx->x86_pv.width == 8 )
         rc = write_split_record(ctx, &rec, &vcpu, sizeof(vcpu.x64));
