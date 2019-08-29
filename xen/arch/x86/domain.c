@@ -1054,10 +1054,15 @@ int arch_set_info_guest(
         cr3_gfn = xen_cr3_to_pfn(c.nat->ctrlreg[3]);
     else
         cr3_gfn = compat_cr3_to_pfn(c.cmp->ctrlreg[3]);
-    cr3_page = get_page_from_gfn(d, cr3_gfn, NULL, P2M_ALLOC);
+    if ( d->restore ) {
+        cr3_page = mfn_to_page(_mfn(cr3_gfn));
+        rc = transfer_page(d, cr3_page);
+    } else
+        cr3_page = get_page_from_gfn(d, cr3_gfn, NULL, P2M_ALLOC);
 
-    if ( !cr3_page )
+    if ( !cr3_page ) {
         rc = -EINVAL;
+    }
     else if ( paging_mode_refcounts(d) )
         /* nothing */;
     else if ( cr3_page == v->arch.old_guest_table )
@@ -1098,9 +1103,13 @@ int arch_set_info_guest(
         if ( c.nat->ctrlreg[1] )
         {
             cr3_gfn = xen_cr3_to_pfn(c.nat->ctrlreg[1]);
-            cr3_page = get_page_from_gfn(d, cr3_gfn, NULL, P2M_ALLOC);
+            if ( d->restore ) {
+                cr3_page = mfn_to_page(_mfn(cr3_gfn));
+                rc = transfer_page(d, cr3_page);
+            } else
+                cr3_page = get_page_from_gfn(d, cr3_gfn, NULL, P2M_ALLOC);
 
-            if ( !cr3_page )
+            if ( rc || !cr3_page )
                 rc = -EINVAL;
             else if ( !paging_mode_refcounts(d) )
             {
