@@ -545,12 +545,19 @@ static int arch_domain_create_helper(struct domain *d,
      * 32-bit guest's start_info structure. Hence we specify MEMF_bits(32).
      */
     if ( from_domaininfo && ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn ) {
-        d->shared_info = mfn_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn);
-        printk(XENLOG_G_ERR "Consuming sharedinfo; fll= %lu cr3= %lu\n", d->shared_info->native.arch.pfn_to_mfn_frame_list_list, d->shared_info->native.arch.p2m_cr3);
+        d->shared_info = maddr_to_virt(((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn);
+        /* For a leaked page, relinquish_memory was never called and the allocation state was never reset.
+         * Force-set count_info here to pass the ASSERT in share_xen_page_with_guest.
+         */
+        virt_to_page(d->shared_info)->count_info = PGC_xen_heap;
+
+        printk(XENLOG_G_ERR "Consuming sharedinfo; virt= %p mfn= %ld fll= %lu cr3= %lu\n", d->shared_info,
+               ((struct xen_domctl_createdomain_from_domaininfo *) config)->mfns.shared_info_mfn,
+               d->shared_info->native.arch.pfn_to_mfn_frame_list_list, d->shared_info->native.arch.p2m_cr3);
         alloc_xenheap_pages(0, MEMF_bits(32)); /* Waste an allocation to advance a pointer. */
     }
     else if ( (d->shared_info = alloc_xenheap_pages(0, MEMF_bits(32))) != NULL ) {
-        printk(XENLOG_G_ERR "createdomain: shared_info= %lu\n", virt_to_mfn(d->shared_info));
+        printk(XENLOG_G_ERR "createdomain: shared_info virt= %p maddr= %lu\n", d->shared_info, virt_to_maddr(d->shared_info));
         clear_page(d->shared_info);
     }
     else
