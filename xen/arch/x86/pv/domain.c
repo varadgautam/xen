@@ -304,20 +304,14 @@ int pv_domain_initialise_helper(struct domain *d, struct xen_domctl_createdomain
             goto fail;
         *d->arch.pv_domain.cpuidmasks = cpuidmask_defaults;
     }
-
-    if ( config ) {
-        printk(XENLOG_G_WARNING "%s: reusing l3=%lx l2=%lx\n", __func__, config->mfns.l3tab_mfn, config->mfns.l2tab_mfn);
-        rc = reuse_perdomain_mapping(d, GDT_LDT_VIRT_START, GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
-                                     config->mfns.l3tab_mfn, config->mfns.l2tab_mfn);
-    }
-    else {
-        printk("%s,NULL\n",__func__);
+    
+    if ( !config ) {
         rc = create_perdomain_mapping(d, GDT_LDT_VIRT_START,
                                   GDT_LDT_MBYTES << (20 - PAGE_SHIFT),
                                   NULL, NULL);
+        if ( rc )
+            goto fail;
     }
-    if ( rc )
-        goto fail;
 
     d->arch.ctxt_switch = &pv_csw;
 
