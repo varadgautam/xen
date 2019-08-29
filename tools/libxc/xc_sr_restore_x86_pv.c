@@ -673,7 +673,10 @@ static int handle_x86_pv_p2m_frames(struct xc_sr_context *ctx,
     unsigned start, end, x, fpp = PAGE_SIZE / ctx->x86_pv.width;
     int rc;
 //    privcmd_mmap_entry_t *p2m_frame_entries = NULL;
-   xen_pfn_t *p2m_table_page;
+//    xen_pfn_t *p2m_table_page;
+
+    if ( ctx->restore.stateonly )
+        return 0;
 
     if ( !ctx->x86_pv.restore.seen_pv_info )
     {
@@ -721,12 +724,15 @@ static int handle_x86_pv_p2m_frames(struct xc_sr_context *ctx,
     }
 
 //    p2m_table_page = xc_map_foreign_pages(xch, DOMID_XEN, PROT_READ, ctx->x86_pv.p2m_mfns, 1);
-    p2m_table_page = xc_map_foreign_range(xch, DOMID_XEN, PAGE_SIZE,
-                                     PROT_READ, ctx->x86_pv.p2m_mfns[0]);
-//    ERROR("mapping mfn=%llx\n", p2m_frame_entries[0].mfn);
+
+
+//    p2m_table_page = xc_map_foreign_range(xch, DOMID_XEN, PAGE_SIZE,
+                                     //PROT_READ, ctx->x86_pv.p2m_mfns[0]);
+
+                                     //    ERROR("mapping mfn=%llx\n", p2m_frame_entries[0].mfn);
 //    p2m_table = xc_map_foreign_range(xch, DOMID_XEN, PAGE_SIZE, PROT_READ,
 //        p2m_frame_entries[0].mfn);
-    ERROR("p2m_table@%p\n", p2m_table_page);
+//     ERROR("p2m_table@%p err=%d\n", p2m_table_page, errno);
 //    ERROR("p2m contents: %lx\n", (uint64_t) p2m_table[0]);
 
     return 0;
