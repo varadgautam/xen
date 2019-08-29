@@ -93,6 +93,8 @@ long pv_set_gdt(struct vcpu *v, unsigned long *frames, unsigned int entries)
     struct domain *d = v->domain;
     l1_pgentry_t *pl1e;
     unsigned int i, nr_frames = DIV_ROUND_UP(entries, 512);
+    int page_type;
+    int rc = 0;
 
     if ( entries > FIRST_RESERVED_GDT_ENTRY )
         return -EINVAL;
@@ -101,11 +103,18 @@ long pv_set_gdt(struct vcpu *v, unsigned long *frames, unsigned int entries)
     for ( i = 0; i < nr_frames; i++ )
     {
         struct page_info *page;
-
-        page = get_page_from_gfn(d, frames[i], NULL, P2M_ALLOC);
-        if ( !page )
+        if ( !d->restore ) {
+            page = get_page_from_gfn(d, frames[i], NULL, P2M_ALLOC);
+        } else {
+            /* Get the page and associate it with the new domain being created. */
+            page = mfn_to_page(_mfn(frames[i]));
+            rc = transfer_page(d, page);
+        }
+        if ( rc || !page ) {
             goto fail;
-        if ( !get_page_type(page, PGT_seg_desc_page) )
+        }
+        page_type = get_page_type(page, PGT_seg_desc_page);
+        if ( !page_type )
         {
             put_page(page);
             goto fail;
@@ -113,8 +122,9 @@ long pv_set_gdt(struct vcpu *v, unsigned long *frames, unsigned int entries)
         frames[i] = mfn_x(page_to_mfn(page));
     }
 
-    /* Tear down the old GDT. */
-    pv_destroy_gdt(v);
+    if ( !d->restore )
+        /* Tear down the old GDT. */
+        pv_destroy_gdt(v);
 
     /* Install the new GDT. */
     v->arch.pv_vcpu.gdt_ents = entries;

@@ -299,6 +299,7 @@ static struct domain *domain_create_handler(domid_t domid,
 
     spin_lock_init(&d->shutdown_lock);
     d->shutdown_code = SHUTDOWN_CODE_INVALID;
+    d->restore = from_domaininfo;
 
     spin_lock_init(&d->pbuf_lock);
 
