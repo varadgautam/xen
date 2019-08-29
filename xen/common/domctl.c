@@ -510,6 +510,7 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
                | XEN_DOMCTL_CDF_xs_domain)) )
             break;
 
+if ( op->cmd == XEN_DOMCTL_createdomain ) {
         dom = op->domain;
         if ( (dom > 0) && (dom < DOMID_FIRST_RESERVED) )
         {
@@ -533,13 +534,11 @@ long do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
 
             rover = dom;
         }
-
-        if ( op->cmd == XEN_DOMCTL_createdomain_from_domaininfo ) {
-            printk(XENLOG_G_WARNING "hcall: from domaininfo\n");
-            d = domain_create_from_domaininfo(dom, &op->u.createdomain_from_domaininfo);
-        }
-        else
-            d = domain_create(dom, &op->u.createdomain);
+        d = domain_create(dom, &op->u.createdomain);
+} else {
+        dom = op->u.createdomain_from_domaininfo.reuse_domid;
+        d = domain_create_from_domaininfo(dom, &op->u.createdomain_from_domaininfo);
+}
 
         if ( IS_ERR(d) )
         {

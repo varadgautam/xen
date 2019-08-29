@@ -131,6 +131,7 @@ struct createdomain_magic_mfns {
 
 struct xen_domctl_createdomain_from_domaininfo {
     struct xen_domctl_createdomain createdomain;
+    uint64_t reuse_domid;
     struct createdomain_magic_mfns mfns;
 };
 
