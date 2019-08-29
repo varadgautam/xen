@@ -70,6 +70,8 @@
 
 DEFINE_PER_CPU(struct vcpu *, curr_vcpu);
 
+extern bool domkill_leakguest;
+
 static void default_idle(void);
 void (*pm_idle) (void) __read_mostly = default_idle;
 void (*dead_idle) (void) __read_mostly = default_dead_idle;
@@ -1965,9 +1967,6 @@ static int relinquish_memory(
     spin_unlock_recursive(&d->page_alloc_lock);
     return ret;
 }
-
-static bool domkill_leakguest = false;
-boolean_runtime_param("domkill_leakguest", domkill_leakguest);
 
 int domain_relinquish_resources(struct domain *d)
 {

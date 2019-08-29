@@ -841,6 +841,9 @@ void domain_pause_for_debugger(void)
 }
 #endif
 
+bool domkill_leakguest = false;
+boolean_runtime_param("domkill_leakguest", domkill_leakguest);
+
 /* Complete domain destroy after RCU readers are not holding old references. */
 static void complete_domain_destroy(struct rcu_head *head)
 {
@@ -856,6 +859,7 @@ static void complete_domain_destroy(struct rcu_head *head)
      */
     sync_local_execstate();
 
+if ( !domkill_leakguest ) {
     for ( i = d->max_vcpus - 1; i >= 0; i-- )
     {
         if ( (v = d->vcpu[i]) == NULL )
@@ -914,6 +918,7 @@ static void complete_domain_destroy(struct rcu_head *head)
     free_domain_struct(d);
 
     send_global_virq(VIRQ_DOM_EXC);
+}
 }
 
 /* Release resources belonging to task @p. */
