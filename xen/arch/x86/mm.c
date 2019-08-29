@@ -4094,6 +4094,20 @@ int donate_page(
     return -EINVAL;
 }
 
+/* Transfer a page to domain d. */
+int transfer_page(struct domain *d, struct page_info *page)
+{
+    spin_lock(&d->page_alloc_lock);
+
+    page->count_info = PGC_allocated | 1;
+    page_set_owner(page, d);
+    page_list_add_tail(page,&d->page_list);
+
+    spin_unlock(&d->page_alloc_lock);
+
+    return 0;
+}
+
 /*
  * Steal page will attempt to remove `page` from domain `d`.  Upon
  * return, `page` will be in a state similar to the state of a page
