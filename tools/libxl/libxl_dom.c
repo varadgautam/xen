@@ -354,6 +354,7 @@ int libxl__build_pre(libxl__gc *gc, uint32_t domid,
     int rc;
     uint64_t size;
 
+    LOG(ERROR, "BUILD PREx\n");
     if (!is_reset) {
         if (xc_domain_max_vcpus(ctx->xch, domid, info->max_vcpus) != 0) {
             LOG(ERROR, "Couldn't set max vcpu count");
@@ -865,6 +866,7 @@ int libxl__build_pv(libxl__gc *gc, uint32_t domid,
         state->store_mfn = xc_dom_p2m(dom, dom->xenstore_pfn);
     }
 
+    LOG(ERROR, "BUILD console_mfn= %lu store_mfn= %lu\n", state->console_mfn, state->store_mfn);
     ret = 0;
 out:
     xc_dom_release(dom);
