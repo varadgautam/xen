@@ -63,6 +63,7 @@ void libxl__xc_domain_restore(libxl__egc *egc, libxl__domain_create_state *dcs,
         state->console_domid,
         hvm, pae,
         cbflags, dcs->restore_params.checkpointed_stream,
+        state->store_mfn, state->console_mfn
     };
 
     shs->ao = ao;

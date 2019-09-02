@@ -379,9 +379,11 @@ libxl_version_info = Struct("version_info", [
     ], dir=DIR_OUT)
 
 libxl_dom_create_info_magic_mfns = Struct("dom_create_info_magic_mfns",[
-    ("l3_mfn", uint64),
-    ("shared_info_mfn", uint64),
+    ("l3_mfn", uint32),
+    ("shared_info_mfn", uint32),
     ("hostp2m_maddr", uint64),
+    ("store_mfn", uint32),
+    ("console_mfn", uint32),
 ], dir=DIR_IN)
 
 libxl_domain_create_info = Struct("domain_create_info",[

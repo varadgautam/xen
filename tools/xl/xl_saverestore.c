@@ -206,14 +206,14 @@ int main_restore(int argc, char **argv)
     } else if (argc-optind == 2) {
         config_file = argv[optind];
         checkpoint_file = argv[optind + 1];
-    } else if (reuse_mfns && argc-optind == 4) {
+    } else if (reuse_mfns && argc-optind == 6) {
         checkpoint_file = argv[optind];
         l3_mfn = strtoull(argv[optind + 1], NULL, 0);
         hostp2m_maddr = strtoull(argv[optind + 2], NULL, 0);
         shared_info_mfn = strtoull(argv[optind + 3], NULL, 0);
 //         reuse_domid = strtoull(argv[optind + 4], NULL, 0);
-//         console_mfn = strtoull(argv[optind + 5], NULL, 0);
-//         store_mfn = strtoull(argv[optind + 6], NULL, 0);
+        console_mfn = strtoull(argv[optind + 4], NULL, 0);
+        store_mfn = strtoull(argv[optind + 5], NULL, 0);
     } else {
         help("restore");
         return EXIT_FAILURE;

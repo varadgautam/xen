@@ -907,6 +907,8 @@ start:
         d_config.c_info.mfns.hostp2m_maddr = dom_info->mfns.hostp2m_maddr;
         d_config.c_info.mfns.shared_info_mfn = dom_info->mfns.shared_info_mfn;
 //      d_config.c_info.reuse_domid = dom_info->reuse_domid;
+        d_config.c_info.mfns.store_mfn = dom_info->mfns.store_mfn;
+        d_config.c_info.mfns.console_mfn = dom_info->mfns.console_mfn;
 
         params.checkpointed_stream = dom_info->checkpointed_stream;
         params.stream_version =

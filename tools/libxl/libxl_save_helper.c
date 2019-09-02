@@ -285,12 +285,14 @@ int main(int argc, char **argv)
         unsigned int pae =                  strtoul(NEXTARG,0,10);
         unsigned cbflags =                  strtoul(NEXTARG,0,10);
         xc_migration_stream_t stream_type = strtoul(NEXTARG,0,10);
+        unsigned long store_mfn = strtoull(NEXTARG,0,10);
+        unsigned long console_mfn = strtoull(NEXTARG,0,10);
         assert(!*++argv);
 
         helper_setcallbacks_restore(&helper_restore_callbacks, cbflags);
 
-        unsigned long store_mfn = 0;
-        unsigned long console_mfn = 0;
+//        unsigned long store_mfn = 0;
+//        unsigned long console_mfn = 0;
 
         startup("restore");
         setup_signals(SIG_DFL);
